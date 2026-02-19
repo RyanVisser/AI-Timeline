@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>A History of Artificial Intelligence</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --card: #1a1a26;
+    --border: #2a2a40;
+    --accent: #e8c97a;
+    --accent2: #7a9de8;
+    --accent3: #e87a9d;
+    --text: #e8e8f0;
+    --muted: #8888a8;
+    --line: #2a2a50;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Starfield background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: 
+      radial-gradient(1px 1px at 20% 30%, rgba(232,201,122,0.3) 0%, transparent 100%),
+      radial-gradient(1px 1px at 80% 10%, rgba(122,157,232,0.3) 0%, transparent 100%),
+      radial-gradient(1px 1px at 50% 60%, rgba(232,122,157,0.2) 0%, transparent 100%),
+      radial-gradient(1px 1px at 10% 80%, rgba(232,201,122,0.2) 0%, transparent 100%),
+      radial-gradient(1px 1px at 90% 70%, rgba(122,157,232,0.2) 0%, transparent 100%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  header {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 80px 20px 60px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  header .label {
+    font-size: 11px;
+    letter-spacing: 4px;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.5rem, 6vw, 5rem);
+    font-weight: 700;
+    line-height: 1.1;
+    background: linear-gradient(135deg, var(--text) 0%, var(--accent) 50%, var(--accent2) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 20px;
+  }
+
+  header p {
+    color: var(--muted);
+    font-size: 13px;
+    max-width: 500px;
+    margin: 0 auto;
+    line-height: 1.8;
+  }
+
+  /* Filter bar */
+  .filter-bar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(10,10,15,0.95);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .filter-bar .filter-label {
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .filter-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 6px 14px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-radius: 2px;
+  }
+
+  .filter-btn:hover, .filter-btn.active {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(232,201,122,0.06);
+  }
+
+  /* Timeline */
+  .timeline-container {
+    position: relative;
+    z-index: 1;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 60px 20px 100px;
+  }
+
+  /* Central spine */
+  .timeline-container::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 60px;
+    bottom: 100px;
+    width: 1px;
+    background: linear-gradient(to bottom, transparent, var(--line) 10%, var(--line) 90%, transparent);
+    transform: translateX(-50%);
+  }
+
+  @media (max-width: 650px) {
+    .timeline-container::before {
+      left: 30px;
+    }
+  }
+
+  .event {
+    position: relative;
+    display: flex;
+    gap: 40px;
+    margin-bottom: 50px;
+    align-items: flex-start;
+    transition: opacity 0.4s, transform 0.4s;
+  }
+
+  .event.hidden {
+    display: none;
+  }
+
+  .event.left {
+    flex-direction: row-reverse;
+    text-align: right;
+  }
+
+  .event.right {
+    flex-direction: row;
+    text-align: left;
+  }
+
+  /* Node on the line */
+  .event-node {
+    position: absolute;
+    left: 50%;
+    top: 18px;
+    transform: translateX(-50%);
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid var(--accent);
+    background: var(--bg);
+    z-index: 2;
+    transition: all 0.3s;
+    flex-shrink: 0;
+  }
+
+  .event:hover .event-node {
+    width: 18px;
+    height: 18px;
+    top: 15px;
+    background: var(--accent);
+    box-shadow: 0 0 20px rgba(232,201,122,0.5);
+  }
+
+  .event.cat-language .event-node { border-color: var(--accent2); }
+  .event.cat-language:hover .event-node { background: var(--accent2); box-shadow: 0 0 20px rgba(122,157,232,0.5); }
+  .event.cat-robotics .event-node { border-color: var(--accent3); }
+  .event.cat-robotics:hover .event-node { background: var(--accent3); box-shadow: 0 0 20px rgba(232,122,157,0.5); }
+  .event.cat-games .event-node { border-color: #7ae8c9; }
+  .event.cat-games:hover .event-node { background: #7ae8c9; box-shadow: 0 0 20px rgba(122,232,201,0.5); }
+
+  /* Half-width cards */
+  .event-card {
+    width: calc(50% - 40px);
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 24px 28px;
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .event-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px; height: 100%;
+    background: var(--accent);
+    transform: scaleY(0);
+    transform-origin: top;
+    transition: transform 0.3s;
+  }
+
+  .event.cat-language .event-card::before { background: var(--accent2); }
+  .event.cat-robotics .event-card::before { background: var(--accent3); }
+  .event.cat-games .event-card::before { background: #7ae8c9; }
+
+  .event-card:hover {
+    border-color: rgba(232,201,122,0.4);
+    background: #1f1f30;
+    transform: translateY(-3px);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+  }
+
+  .event-card:hover::before { transform: scaleY(1); }
+
+  .event.cat-language .event-card:hover { border-color: rgba(122,157,232,0.4); }
+  .event.cat-robotics .event-card:hover { border-color: rgba(232,122,157,0.4); }
+  .event.cat-games .event-card:hover { border-color: rgba(122,232,201,0.4); }
+
+  .event-year {
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--accent);
+    margin-bottom: 8px;
+    display: block;
+  }
+
+  .event.cat-language .event-year { color: var(--accent2); }
+  .event.cat-robotics .event-year { color: var(--accent3); }
+  .event.cat-games .event-year { color: #7ae8c9; }
+
+  .event-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+    color: var(--text);
+    line-height: 1.3;
+  }
+
+  .event-summary {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.8;
+  }
+
+  .event-detail {
+    display: none;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--text);
+    line-height: 1.9;
+  }
+
+  .event-detail.open { display: block; animation: fadeIn 0.3s ease; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .debate-box {
+    margin-top: 14px;
+    background: rgba(232,201,122,0.06);
+    border: 1px solid rgba(232,201,122,0.2);
+    padding: 14px 16px;
+    font-size: 11px;
+    line-height: 1.8;
+    color: #c8c8a0;
+    font-style: italic;
+  }
+
+  .tag {
+    display: inline-block;
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border: 1px solid;
+    margin-bottom: 10px;
+    border-radius: 2px;
+  }
+
+  .tag.milestone { border-color: var(--accent); color: var(--accent); }
+  .tag.language { border-color: var(--accent2); color: var(--accent2); }
+  .tag.robotics { border-color: var(--accent3); color: var(--accent3); }
+  .tag.games { border-color: #7ae8c9; color: #7ae8c9; }
+  .tag.ethics { border-color: #c97ae8; color: #c97ae8; }
+  .tag.culture { border-color: #e8aa7a; color: #e8aa7a; }
+
+  .expand-hint {
+    font-size: 10px;
+    color: var(--border);
+    margin-top: 12px;
+    letter-spacing: 1px;
+  }
+
+  .event-card:hover .expand-hint { color: var(--muted); }
+
+  /* Year markers on the spine */
+  .spine-label {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--bg);
+    padding: 4px 10px;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--line);
+    border: 1px solid var(--line);
+    z-index: 3;
+    white-space: nowrap;
+  }
+
+  @media (max-width: 650px) {
+    .event { flex-direction: column !important; text-align: left !important; padding-left: 60px; }
+    .event-card { width: 100%; }
+    .event-node { left: 30px; transform: none; }
+    .timeline-container::before { left: 30px; transform: none; }
+    .event.left { flex-direction: column !important; }
+  }
+
+  /* Era dividers */
+  .era-divider {
+    text-align: center;
+    position: relative;
+    margin: 20px 0 50px;
+    z-index: 2;
+  }
+
+  .era-divider span {
+    background: var(--bg);
+    padding: 6px 20px;
+    font-size: 10px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--muted);
+    border: 1px solid var(--border);
+    position: relative;
+    z-index: 2;
+  }
+
+  footer {
+    text-align: center;
+    padding: 40px 20px;
+    border-top: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    position: relative;
+    z-index: 1;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="label">An Interactive History</div>
+  <h1>The Age of<br>Artificial Intelligence</h1>
+  <p>From Ada Lovelace's philosophical objection to the ChatGPT revolution — trace the ideas, breakthroughs, and debates that built the age of thinking machines.</p>
+</header>
+
+<div class="filter-bar">
+  <span class="filter-label">Filter:</span>
+  <button class="filter-btn active" data-filter="all">All</button>
+  <button class="filter-btn" data-filter="milestone">Milestones</button>
+  <button class="filter-btn" data-filter="language">Language & NLP</button>
+  <button class="filter-btn" data-filter="games">Games & Learning</button>
+  <button class="filter-btn" data-filter="robotics">Robotics</button>
+  <button class="filter-btn" data-filter="ethics">Ethics</button>
+  <button class="filter-btn" data-filter="culture">Culture</button>
+</div>
+
+<div class="timeline-container" id="timeline">
+
+  <!-- ADA LOVELACE -->
+  <div class="event left cat-milestone" data-tags="milestone ethics">
+    <div class="event-node"></div>
+    <div class="event-card" onclick="toggleDetail(this)">
+      <span class="tag milestone">Milestone</span>
+      <span class="tag ethics">Philosophy</span>
+      <span class="event-year">c. 1843</span>
+      <div class="event-title">Ada Lovelace & The Lovelace Objection</div>
+      <div class="event-summary">The world's first computer programmer raises a question that still haunts AI today: can machines truly think — or only obey?</div>
+      <div class="event-detail">
+        Ada Lovelace, collaborating with Charles Babbage on his Analytical Engine, did not work with AI — but she planted the seed of its central debate. She believed that machines could only do what we <em>ordered</em> them to do, and lacked the ability to create or "originate" anything on their own. This limitation is now known in computer science as the <strong>Lovelace Objection</strong>, and a formalized version is called the <strong>Lovelace Test</strong>.
+        <div class="debate-box">
+          💡 Central debate, still alive today: Is generative AI truly creative, or just a very fast mimic? When ChatGPT writes a poem, is it originating — or assembling?
+        </div>
+      </div>
+      <div class="expand-hint">↓ click to expand</div>
+    </div>
+  </div>
+
+  <!-- KAREL ČAPEK -->
+  <div class="event right cat-culture" data-tags="culture">
+    <div class="event-node"></div>
+    <div class="event-card" onclick="toggleDetail(this)">
+      <span class="tag culture">Culture</span>
+      <span class="event-year">1921</span>
+      <div class="event-title">Karel Čapek Coins "Robot"</div>
+      <div class="event-summary">A Czech playwright introduces artificial people to the world — and gives them a name that sticks forever.</div>
+      <div class="event-detail">
+        Czech playwright Karel Čapek released the science fiction play <em>Rossum's Universal Robots</em>, which introduced the idea of "artificial people" — and named them <strong>robots</strong>. This was the first known use of the word, derived from the Czech <em>robota</em>, meaning forced labor or drudgery. The play explored themes of machine rebellion and human identity that would echo through AI discourse for a century.
+      </div>
+      <div class="expand-hint">↓ click to expand</div>
+    </div>
+  </div>
+
+  <div class="era-divider"><span>The Turing Era</span></div>
+
+  <!-- ALAN TURING / BLETCHLEY -->
+  <div class="event left cat-milestone" data-tags="milestone">
+    <div class="event-node"></div>
+    <div class="event-card" onclick="toggleDetail(this)">
+      <span class="tag milestone">Founding Figure</span>
+      <span class="event-year">1940s</span>
+      <div class="event-title">Alan Turing & Bletchley Park</div>
+      <div class="event-summary">The man who cracked Enigma lays the intellectual groundwork for both modern computing and artificial intelligence.</div>
+      <div class="event-detail">
+        Alan Turing — of Enigma fame — is considered the father of both modern computer science and AI. His wartime work at Bletchley Park created precursors to computers and AI, demonstrating that a machine could be used to perform <em>logical, deductive work</em>. The Bombe machine, which decoded Nazi communications, was proof that reasoning could be mechanized.
+      </div>
+      <div class="expand-hint">↓ click to expand</div>
+    </div>
+  </div>
+
+  <!-- TURING TEST -->
+  <div class="event right cat-milestone" data-tags="milestone">
+    <div class="event-node"></div>
+    <div class="event-card" onclick="toggleDetail(this)">
+      <span class="tag milestone">Milestone</span>
+      <span class="event-year">1950</span>
+      <div class="event-title">The Turing Test — "Computing Machinery and Intelligence"</div>
+      <div class="event-summary">Turing asks the question that defines a field: <em>Can machines think?</em> He proposes a deceptively simple test to find out.</div>
+      <div class="event-detail">
+        Alan Turing published <em>Computing Machinery and Intelligence</em>, proposing a test of machine intelligence he called <strong>The Imitation Game</strong> — later known as the <strong>Turing Test</strong>. The idea: if a machine can hold a conversation indistinguishable from a human, it passes. But passing the test requires answering something deeper: <em>What is intelligence?</em> That question remains unanswered.
+        <div class="debate-box">
+          🎬 The 2014 film <em>The Imitation Game</em> dramatizes Turing's life and work, bringing the concept of machine intelligence to mainstream audiences.
+        </div>
+      </div>
+      <div class="expand-hint">↓ click to expand</div>
+    </div>
+  </div>
+
+  <!-- SAMUEL CHECKERS -->
+  <div class="event left cat-games" data-tags="games">
+    <div class="event-node"></div>
+    <div class="event-card" onclick="toggleDetail(this)">
+      <span class="tag games">Games & Learning</span>
+      <span class="event-year">1952</span>
+      <div class="event-title">Arthur Samuel's Checkers Program</div>
+      <div class="event-summary">For the first time, a machine learns a game on its own — without being told how to play.</div>
+      <div class="event-detail">
+        Computer scientist Arthur Samuel developed a program to play checkers — the first program ever to <em>learn the game independently</em>. Rather than encoding rules, Samuel's program improved through experience, an early and remarkable form of machine learning.
+      </div>
+      <div class="expand-hint">↓ click to expand</div>
+    </div>
+  </div>
+
+  <!-- DARTMOUTH / MCCARTHY -->
+  <div class="event right cat-milestone" data-tags="milestone">
+    <div class="event-node"></div>
+    <div class="event-card" onclick="toggleDetail(this)">
+      <span class="tag milestone">Milestone</span>
+      <span class="event-year">1955</span>
+      <div class="event-title">John McCarthy Names "Artificial Intelligence"</div>
+      <div class="event-summary">A workshop at Dartmouth gives the field its name — and a direction.</div>
+      <div class="event-detail">
+        John McCarthy organized a workshop at Dartmouth College on "artificial intelligence," the first formal use of the term and the moment it entered popular usage. McCarthy's framing helped coalesce what had been scattered research into a coherent discipline with a bold, singular ambition: building machines that could reason like humans.
+      </div>
+      <div class="expand-hint">↓ click to expand</div>
+    </div>
+  </div>
+
+  <!-- MACHINE LEARNING TERM -->
+  <div class="event left cat-games" data-tags="games milestone">
+    <div class="event-node"></div>
+    <div class="event-card" onclick="toggleDetail(this)">
+      <span class="tag milestone">Milestone</span>
+      <span class="tag games">Learning</span>
+      <span class="event-year">1959</span>
+      <div class="event-title">"Machine Learning" — A New Term Is Born</div>
+      <div class="event-summary">Arthur Samuel coins the phrase that would define the next era of AI.</div>
+      <div class="event-detail">
+        Arthur Samuel coined the term <strong>"machine learning"</strong> in a speech about teaching machines to play chess better than the humans who programmed them. The concept: rather than hand-coding every rule, you let the machine discover patterns from data and improve over time. This idea — deceptively simple in 1959 — would become the dominant paradigm of 21st century AI.
+      </div>
+      <div class="expand-hint">↓ click to expand</div>
+    </div>
+  </div>
+
+  <div class="era-divider"><span>Language & Conversation</span></div>
+
+  <!-- ELIZA -->
+  <div class="event right cat-language" data-tags="language">
+    <div class="event-node"></div>
+    <div class="event-card" onclick="toggleDetail(this)">
+      <span class="tag language">Language</span>
+      <span class="event-year">1966</span>
+      <div class="event-title">ELIZA — The First Chatbot</div>
+      <div class="event-summary">A mock therapist named ELIZA convinces some users she truly understands them. She doesn't — but the illusion is profound.</div>
+      <div class="event-detail">
+        Joseph Weizenbaum at MIT created <strong>ELIZA</strong>, the first "chatterbot" (later shortened to chatbot) — a mock psychotherapist that used natural language processing (NLP) to converse with humans. ELIZA's responses were scripted patterns, yet many users felt genuinely understood. Weizenbaum himself was disturbed by this effect, later writing critically about over-reliance on machines. A later version, <strong>PARRY</strong> (1972), played a paranoid schizophrenic. ELIZA remains an ancestor of every chatbot and virtual assistant in existence.
+      </div>
+      <div class="expand-hint">↓ click to expand</div>
+    </div>
+  </div>
+
+  <!-- AAAI -->
+  <div class="event left cat-milestone" data-tags="milestone">
+    <div class="event-node"></div>
+    <div class="event-card" onclick="toggleDetail(this)">
+      <span class="tag milestone">Milestone</span>
+      <span class="event-year">1980</span>
+      <div class="event-title">First AAAI Conference at Stanford</div>
+      <div class="event-summary">The AI research community formalizes itself at one of the world's most prestigious universities.</div>
+      <div class="event-detail">
+        The first conference of the <strong>Association for the Advancement of Artificial Intelligence (AAAI)</strong> was held at Stanford University. This gathering brought together leading researchers and cemented AI as a serious, organized academic discipline. The AAAI continues to host the field's premier annual conference today.
+      </div>
+      <div class="expand-hint">↓ click to expand</div>
+    </div>
+  </div>
+
+  <!-- DRIVERLESS CAR -->
+  <div class="event right cat-robotics" data-tags="robotics">
+    <div class="event-node"></div>
+    <div class="event-card" onclick="toggleDetail(this)">
+      <span class="tag robotics">Robotics</span>
+      <span class="event-year">1986</span>
+      <div class="event-title">The First Driverless Car</div>
+      <div class="event-summary">A robot car drives itself down a real road — decades before Tesla or Waymo were even imagined.</div>
+      <div class="event-detail">
+        Ernst Dickmanns and his team at Bundeswehr University of Munich built and demonstrated the first driverless car (or "robot car"). It could navigate roads at up to <strong>55 mph</strong>, though only on obstacle-free roads without other human drivers. The achievement proved autonomous navigation was possible and planted the seed for the self-driving revolution 30 years later.
+      </div>
+      <div class="expand-hint">↓ click to expand</div>
+    </div>
+  </div>
+
+  <div class="era-divider"><span>The Age of Intelligent Systems</span></div>
+
+  <!-- DEEP BLUE -->
+  <div class="event left cat-games" data-tags="games milestone">
+    <div class="event-node"></div>
+    <div class="event-card" onclick="toggleDetail(this)">
+      <span class="tag milestone">Milestone</span>
+      <span class="tag games">Games</span>
+      <span class="event-year">1997</span>
+      <div class="event-title">Deep Blue Defeats Garry Kasparov</div>
+      <div class="event-summary">IBM's chess machine beats the world's greatest human player. The world holds its breath.</div>
+      <div class="event-detail">
+        IBM's <strong>Deep Blue</strong> defeated reigning world chess champion Garry Kasparov in a highly publicized six-game match — becoming the first computer program to beat a human chess champion in a classical match. Kasparov accused IBM of cheating; IBM denied it and retired the machine. The match marked a cultural turning point: for the first time, a machine had bested a human at a game long considered the pinnacle of human intellect.
+      </div>
+      <div class="expand-hint">↓ click to expand</div>
+    </div>
+  </div>
+
+  <!-- ROOMBA -->
+  <div class="event right cat-robotics" data-tags="robotics">
+    <div class="event-node"></div>
+    <div class="event-card" onclick="toggleDetail(this)">
+      <span class="tag robotics">Robotics</span>
+      <span class="event-year">2002</span>
+      <div class="event-title">The Roomba Enters Your Home</div>
+      <div class="event-summary">AI finally does something profoundly useful: vacuums the floor. And befriends cats everywhere.</div>
+      <div class="event-detail">
+        iRobot released the first <strong>Roomba</strong>, bringing autonomous robotics into everyday domestic life. The Roomba used a combination of sensors, AI navigation, and bump-detection to clean floors without human guidance. It also immediately encountered children's unsupervised messes (Play-Doh, pet surprises) in ways its creators hadn't fully anticipated — making it an unexpected cultural phenomenon as well as a technological one.
+      </div>
+      <div class="expand-hint">↓ click to expand</div>
+    </div>
+  </div>
+
+  <!-- KINECT -->
+  <div class="event left cat-robotics" data-tags="robotics">
+    <div class="event-node"></div>
+    <div class="event-card" onclick="toggleDetail(this)">
+      <span class="tag robotics">Computer Vision</span>
+      <span class="event-year">2010</span>
+      <div class="event-title">Xbox Kinect — Machines That See You Move</div>
+      <div class="event-summary">A gaming peripheral teaches computers to see and interpret human bodies in real time.</div>
+      <div class="event-detail">
+        Microsoft launched the <strong>Xbox 360 Kinect</strong>, the first mass-market gaming hardware designed to track body movement and translate it into game directions — no controller required. Beneath the fun, it was a major demonstration of real-time computer vision and skeletal tracking at consumer scale, foreshadowing technology now used in medical diagnostics, security, and AR/VR.
+      </div>
+      <div class="expand-hint">↓ click to expand</div>
+    </div>
+  </div>
+
+  <div class="era-divider"><span>The Conversational Turn</span></div>
+
+  <!-- WATSON JEOPARDY -->
+  <div class="event right cat-language" data-tags="language games milestone">
+    <div class="event-node"></div>
+    <div class="event-card" onclick="toggleDetail(this)">
+      <span class="tag language">Language</span>
+      <span class="tag milestone">Milestone</span>
+      <span class="event-year">2011</span>
+      <div class="event-title">IBM Watson Wins Jeopardy!</div>
+      <div class="event-summary">A question-answering machine beats two human champions on live television. Natural language understanding has arrived.</div>
+      <div class="event-detail">
+        IBM's <strong>Watson</strong>, an NLP system programmed to answer questions in natural language, defeated two of Jeopardy!'s greatest champions — Ken Jennings and Brad Rutter — in a televised match. Watson had to parse complex wordplay, puns, and cultural references in real time. Jennings famously wrote on his Final Jeopardy answer: "I, for one, welcome our new computer overlords."
+      </div>
+      <div class="expand-hint">↓ click to expand</div>
+    </div>
+  </div>
+
+  <!-- SIRI -->
+  <div class="event left cat-language" data-tags="language milestone">
+    <div class="event-node"></div>
+    <div class="event-card" onclick="toggleDetail(this)">
+      <span class="tag language">Language</span>
+      <span class="tag milestone">Consumer AI</span>
+      <span class="event-year">2011</span>
+      <div class="event-title">Apple Siri — AI in Every Pocket</div>
+      <div class="event-summary">The first popular virtual assistant puts conversational AI in the hands of millions overnight.</div>
+      <div class="event-detail">
+        Apple released <strong>Siri</strong> on the iPhone 4S — the first widely adopted virtual assistant. Though limited by today's standards, Siri normalized speaking naturally to a device and expecting a meaningful response. It set off a wave of voice assistant development (Google Now, Amazon Alexa, Microsoft Cortana) and fundamentally changed how humans expected to interact with technology.
+      </div>
+      <div class="expand-hint">↓ click to expand</div>
+    </div>
+  </div>
+
+  <!-- OPEN LETTER -->
+  <div class="event right cat-milestone" data-tags="ethics milestone">
+    <div class="event-node"></div>
+    <div class="event-card" onclick="toggleDetail(this)">
+      <span class="tag ethics">Ethics</span>
+      <span class="event-year">2015</span>
+      <div class="event-title">Open Letter: Ban Autonomous Weapons</div>
+      <div class="event-summary">Elon Musk, Stephen Hawking, Steve Wozniak, and thousands of others issue a warning to the world's governments.</div>
+      <div class="event-detail">
+        <strong>Elon Musk, Stephen Hawking, Steve Wozniak</strong>, and over 3,000 researchers, scientists, and technologists signed an open letter calling on the world's governments to ban the development and use of autonomous weapons for purposes of war — AI systems capable of selecting and engaging targets without human control. The letter warned of a global AI arms race with catastrophic potential. It marked one of the first high-profile, coordinated warnings about AI existential risk.
+      </div>
+      <div class="expand-hint">↓ click to expand</div>
+    </div>
+  </div>
+
+  <!-- ALIBABA STANFORD -->
+  <div class="event left cat-language" data-tags="language milestone">
+    <div class="event-node"></div>
+    <div class="event-card" onclick="toggleDetail(this)">
+      <span class="tag language">Language</span>
+      <span class="tag milestone">Milestone</span>
+      <span class="event-year">2018</span>
+      <div class="event-title">Alibaba AI Beats Humans on Stanford Reading Test</div>
+      <div class="event-summary">A Chinese AI outscores human competitors on reading comprehension — a benchmark once thought definitively human.</div>
+      <div class="event-detail">
+        Alibaba's language-processing AI outperformed human intellect on a <strong>Stanford reading and comprehension test</strong> (the SQuAD benchmark), scoring higher than the average human competitor. It was a symbolic milestone: machines were now not just matching humans at structured games, but demonstrating comprehension of unstructured written language — a deeply human skill.
+      </div>
+      <div class="expand-hint">↓ click to expand</div>
+    </div>
+  </div>
+
+  <!-- DALL-E -->
+  <div class="event right cat-milestone" data-tags="milestone">
+    <div class="event-node"></div>
+    <div class="event-card" onclick="toggleDetail(this)">
+      <span class="tag milestone">Milestone</span>
+      <span class="event-year">2021</span>
+      <div class="event-title">DALL-E — AI Learns to See the World</div>
+      <div class="event-summary">OpenAI's image model bridges language and vision, moving AI one step closer to genuine world understanding.</div>
+      <div class="event-detail">
+        OpenAI developed <strong>DALL-E</strong>, a multimodal AI capable of processing and understanding images well enough to produce accurate captions — and later, to generate entirely new images from text descriptions. By connecting linguistic meaning to visual content, DALL-E represented a fundamental leap: AI wasn't just reading text about the world, it was beginning to perceive the world itself.
+        <div class="debate-box">
+          💡 DALL-E and its successors reignite the Lovelace Objection: when a machine generates a painting from a single sentence, is it creating — or elaborating on what it was shown?
+        </div>
+      </div>
+      <div class="expand-hint">↓ click to expand</div>
+    </div>
+  </div>
+
+  <div class="era-divider"><span>The Generative Revolution</span></div>
+
+  <!-- CHATGPT -->
+  <div class="event left cat-milestone" data-tags="milestone language">
+    <div class="event-node"></div>
+    <div class="event-card" onclick="toggleDetail(this)">
+      <span class="tag milestone">Milestone</span>
+      <span class="tag language">Generative AI</span>
+      <span class="event-year">2022</span>
+      <div class="event-title">ChatGPT Changes Everything</div>
+      <div class="event-summary">OpenAI releases a conversational AI so capable and accessible that it reaches 100 million users in two months — and ignites a global reckoning.</div>
+      <div class="event-detail">
+        OpenAI released <strong>ChatGPT</strong> in November 2022, built on the GPT-3.5 architecture. It became the fastest-growing consumer application in history, reaching 100 million users in just two months. For the first time, the general public could converse with an AI that felt genuinely intelligent, creative, and useful. Governments, educators, artists, lawyers, and scientists scrambled to understand what it meant. Ada Lovelace's question — <em>can machines originate?</em> — had never felt more urgent.
+        <div class="debate-box">
+          💡 The Lovelace Objection, the Turing Test, machine learning, natural language processing — every thread in this timeline converges here. The debate is no longer theoretical.
+        </div>
+      </div>
+      <div class="expand-hint">↓ click to expand</div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  Click any card to expand · Filter by category using the bar above · A history of ideas, machines, and the question: <em>can they think?</em>
+</footer>
+
+<script>
+function toggleDetail(card) {
+  const detail = card.querySelector('.event-detail');
+  const hint = card.querySelector('.expand-hint');
+  const isOpen = detail.classList.contains('open');
+  
+  // Close all
+  document.querySelectorAll('.event-detail.open').forEach(d => d.classList.remove('open'));
+  document.querySelectorAll('.expand-hint').forEach(h => h.textContent = '↓ click to expand');
+  
+  if (!isOpen) {
+    detail.classList.add('open');
+    if (hint) hint.textContent = '↑ click to collapse';
+  }
+}
+
+// Filter logic
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const filter = btn.dataset.filter;
+    
+    document.querySelectorAll('.event').forEach(event => {
+      if (filter === 'all') {
+        event.classList.remove('hidden');
+      } else {
+        const tags = (event.dataset.tags || '').split(' ');
+        if (tags.includes(filter)) {
+          event.classList.remove('hidden');
+        } else {
+          event.classList.add('hidden');
+        }
+      }
+    });
+
+    // Hide era dividers if no visible siblings
+    document.querySelectorAll('.era-divider').forEach(div => {
+      let sibling = div.nextElementSibling;
+      let hasVisible = false;
+      while (sibling && !sibling.classList.contains('era-divider')) {
+        if (!sibling.classList.contains('hidden')) hasVisible = true;
+        sibling = sibling.nextElementSibling;
+      }
+      div.style.display = hasVisible ? '' : 'none';
+    });
+  });
+});
+
+// Fade-in on scroll
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.style.opacity = '1';
+      entry.target.style.transform = 'translateY(0)';
+    }
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.event').forEach((el, i) => {
+  el.style.opacity = '0';
+  el.style.transform = 'translateY(30px)';
+  el.style.transition = `opacity 0.6s ease ${i * 0.05}s, transform 0.6s ease ${i * 0.05}s`;
+  observer.observe(el);
+});
+</script>
+</body>
+</html>
