@@ -202,6 +202,8 @@
   .event.cat-robotics:hover .event-node { background: var(--accent3); box-shadow: 0 0 20px rgba(232,122,157,0.5); }
   .event.cat-games .event-node { border-color: #7ae8c9; }
   .event.cat-games:hover .event-node { background: #7ae8c9; box-shadow: 0 0 20px rgba(122,232,201,0.5); }
+  .event.cat-intelligence .event-node { border-color: #b8e87a; }
+  .event.cat-intelligence:hover .event-node { background: #b8e87a; box-shadow: 0 0 20px rgba(184,232,122,0.5); }
 
   /* Half-width cards */
   .event-card {
@@ -229,6 +231,7 @@
   .event.cat-language .event-card::before { background: var(--accent2); }
   .event.cat-robotics .event-card::before { background: var(--accent3); }
   .event.cat-games .event-card::before { background: #7ae8c9; }
+  .event.cat-intelligence .event-card::before { background: #b8e87a; }
 
   .event-card:hover {
     border-color: rgba(232,201,122,0.4);
@@ -242,6 +245,7 @@
   .event.cat-language .event-card:hover { border-color: rgba(122,157,232,0.4); }
   .event.cat-robotics .event-card:hover { border-color: rgba(232,122,157,0.4); }
   .event.cat-games .event-card:hover { border-color: rgba(122,232,201,0.4); }
+  .event.cat-intelligence .event-card:hover { border-color: rgba(184,232,122,0.4); }
 
   .event-year {
     font-size: 13px;
@@ -254,6 +258,7 @@
   .event.cat-language .event-year { color: var(--accent2); }
   .event.cat-robotics .event-year { color: var(--accent3); }
   .event.cat-games .event-year { color: #7ae8c9; }
+  .event.cat-intelligence .event-year { color: #b8e87a; }
 
   .event-title {
     font-family: 'Playfair Display', serif;
@@ -315,6 +320,7 @@
   .tag.games { border-color: #7ae8c9; color: #7ae8c9; }
   .tag.ethics { border-color: #c97ae8; color: #c97ae8; }
   .tag.culture { border-color: #e8aa7a; color: #e8aa7a; }
+  .tag.intelligence { border-color: #b8e87a; color: #b8e87a; }
 
   .expand-hint {
     font-size: 10px;
@@ -395,6 +401,7 @@
   <button class="filter-btn" data-filter="robotics">Robotics</button>
   <button class="filter-btn" data-filter="ethics">Ethics</button>
   <button class="filter-btn" data-filter="culture">Culture</button>
+  <button class="filter-btn" data-filter="intelligence">Intelligence</button>
 </div>
 
 <div class="timeline-container" id="timeline">
@@ -516,6 +523,24 @@
 
   <div class="era-divider"><span>Language & Conversation</span></div>
 
+  <!-- INTELLIGENCE 1950s -->
+  <div class="event right cat-intelligence" data-tags="intelligence">
+    <div class="event-node"></div>
+    <div class="event-card" onclick="toggleDetail(this)">
+      <span class="tag intelligence">Intelligence</span>
+      <span class="event-year">1950s — Defining Intelligence</span>
+      <div class="event-title">Intelligence = Following Complex Logical Rules</div>
+      <div class="event-summary">Early AI researchers believed that if you could encode enough rules, a machine could think. Logic was everything.</div>
+      <div class="event-detail">
+        In the early decades of AI, intelligence was understood as the ability to follow <strong>complex logical rules</strong>. If a machine could process if-then conditions with enough sophistication, it was considered intelligent. The benchmark of this era was the checkers-playing program — a machine that could evaluate board states and apply strategic logic without human intervention. This rule-based paradigm, sometimes called <em>Good Old-Fashioned AI (GOFAI)</em>, dominated the field for decades.
+        <div class="debate-box">
+          🧠 Example: Arthur Samuel's checkers program (1952) — intelligence as encoded rules and branching logic.
+        </div>
+      </div>
+      <div class="expand-hint">↓ click to expand</div>
+    </div>
+  </div>
+
   <!-- ELIZA -->
   <div class="event right cat-language" data-tags="language">
     <div class="event-node"></div>
@@ -574,6 +599,24 @@
       <div class="event-summary">IBM's chess machine beats the world's greatest human player. The world holds its breath.</div>
       <div class="event-detail">
         IBM's <strong>Deep Blue</strong> defeated reigning world chess champion Garry Kasparov in a highly publicized six-game match — becoming the first computer program to beat a human chess champion in a classical match. Kasparov accused IBM of cheating; IBM denied it and retired the machine. The match marked a cultural turning point: for the first time, a machine had bested a human at a game long considered the pinnacle of human intellect.
+      </div>
+      <div class="expand-hint">↓ click to expand</div>
+    </div>
+  </div>
+
+  <!-- INTELLIGENCE 1990s -->
+  <div class="event right cat-intelligence" data-tags="intelligence">
+    <div class="event-node"></div>
+    <div class="event-card" onclick="toggleDetail(this)">
+      <span class="tag intelligence">Intelligence</span>
+      <span class="event-year">1990s — Redefining Intelligence</span>
+      <div class="event-title">Intelligence = Processing Vast Data Faster Than Humans</div>
+      <div class="event-summary">Raw computational power becomes the new measure of machine intelligence — and it starts beating us at our own games.</div>
+      <div class="event-detail">
+        By the 1990s, the definition had shifted. Intelligence was now understood as the ability to <strong>process vast amounts of data</strong> at speeds no human could match, evaluating millions of possibilities to make the optimal decision. Deep Blue didn't "understand" chess the way Kasparov did — it evaluated up to 200 million positions per second. This brute-force intelligence raised an uncomfortable question: is speed and breadth of calculation a form of thinking?
+        <div class="debate-box">
+          🧠 Example: IBM's Deep Blue (1997) — intelligence as computational power applied to data at superhuman scale.
+        </div>
       </div>
       <div class="expand-hint">↓ click to expand</div>
     </div>
@@ -707,6 +750,24 @@
         OpenAI released <strong>ChatGPT</strong> in November 2022, built on the GPT-3.5 architecture. It became the fastest-growing consumer application in history, reaching 100 million users in just two months. For the first time, the general public could converse with an AI that felt genuinely intelligent, creative, and useful. Governments, educators, artists, lawyers, and scientists scrambled to understand what it meant. Ada Lovelace's question — <em>can machines originate?</em> — had never felt more urgent.
         <div class="debate-box">
           💡 The Lovelace Objection, the Turing Test, machine learning, natural language processing — every thread in this timeline converges here. The debate is no longer theoretical.
+        </div>
+      </div>
+      <div class="expand-hint">↓ click to expand</div>
+    </div>
+  </div>
+
+  <!-- INTELLIGENCE TODAY -->
+  <div class="event right cat-intelligence" data-tags="intelligence">
+    <div class="event-node"></div>
+    <div class="event-card" onclick="toggleDetail(this)">
+      <span class="tag intelligence">Intelligence</span>
+      <span class="event-year">Today — Intelligence Redefined Again</span>
+      <div class="event-title">Intelligence = Predicting, Generating & "Reasoning" from Patterns</div>
+      <div class="event-summary">Modern AI doesn't follow rules or just crunch numbers — it finds patterns in everything, and uses them to generate something new.</div>
+      <div class="event-detail">
+        Today's definition of machine intelligence centers on <strong>prediction, generation, and pattern-based reasoning</strong>. Large Language Models (LLMs) like GPT-4 are not programmed with rules or given explicit instructions. Instead, they are trained on enormous datasets and learn to predict what comes next — in text, images, code, and conversation. The result feels remarkably like understanding. But is it? This brings us full circle to Ada Lovelace's 1843 objection: are these models truly reasoning, or executing an extraordinarily sophisticated pattern match?
+        <div class="debate-box">
+          🧠 Example: Large Language Models (LLMs) — intelligence as the ability to predict, generate, and simulate reasoning across any domain. The Lovelace Objection remains unanswered.
         </div>
       </div>
       <div class="expand-hint">↓ click to expand</div>
